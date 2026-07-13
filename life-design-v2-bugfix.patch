@@ -1,0 +1,135 @@
+﻿diff --git a/life-design-v2.html b/life-design-v2.html
+index d48107b..d0ea580 100644
+--- a/life-design-v2.html
++++ b/life-design-v2.html
+@@ -554,6 +554,11 @@
+   }
+   function loadFromStorage(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){ return null; } }
+   function clearStorage(){ localStorage.removeItem(STORAGE_KEY); }
++  function escapeHtml(str){
++    if(str == null || str === '') return '';
++    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
++  }
++  function emptyLabel(){ return isEn ? 'Not filled' : '鏈～鍐?; }
+ 
+   // --- Language ---
+   window.toggleLang = function(){
+@@ -561,6 +566,7 @@
+     document.body.classList.toggle('lang-en', isEn);
+     document.getElementById('langBtn').textContent = isEn ? '涓? : 'EN';
+     buildNav();
++    if(currentStep === 'final') generateReport();
+   };
+ 
+   // --- Theme ---
+@@ -575,8 +581,8 @@
+ 
+   // --- Navigation ---
+   function updateProgress(){
+-    const pct = Math.round((currentStep / totalSteps) * 100);
+-    document.getElementById('progressBar').style.width = pct + '%';
++    const pct = currentStep === 'final' ? 100 : Math.round((Number(currentStep) / totalSteps) * 100);
++    document.getElementById('progressBar').style.width = (isNaN(pct) ? 0 : pct) + '%';
+   }
+   function showStep(n){
+     document.querySelectorAll('[id^="step-"]').forEach(el => el.classList.add('hidden'));
+@@ -651,6 +657,10 @@
+       'dark5','dark10','darkFuel'
+     ];
+     fields.forEach(id => { const el = document.getElementById(id); if(el && data[id]) el.value = data[id]; });
++    const wp = document.getElementById('compassWorkPreview');
++    if(wp) wp.textContent = data.workView || (isEn ? '(Not filled)' : '锛堟湭濉啓锛?);
++    const lp = document.getElementById('compassLifePreview');
++    if(lp) lp.textContent = data.lifeView || (isEn ? '(Not filled)' : '锛堟湭濉啓锛?);
+     if(data.gravityType) selectGravity(data.gravityType);
+     ['A','B','C'].forEach(p => {
+       const d = data['plan'+p];
+@@ -706,7 +716,11 @@
+     ctx.lineWidth = 1;
+     for(let i=1;i<=5;i++){ ctx.beginPath(); ctx.arc(cx,cy,r*i/5,0,Math.PI*2); ctx.stroke(); }
+     for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); ctx.stroke(); }
+-    const scores = dims.map(d => (data.scores?.[d.key] ?? 5) / 10);
++    const scores = dims.map(d => {
++      const el = document.getElementById('score-'+d.key);
++      const val = el ? +el.value : (data.scores?.[d.key] ?? 5);
++      return Math.min(10, Math.max(0, val || 0)) / 10;
++    });
+     ctx.beginPath();
+     for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; const s = scores[i] || 0; const x = cx+Math.cos(a)*r*s, y = cy+Math.sin(a)*r*s; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+     ctx.closePath();
+@@ -860,32 +874,32 @@
+       </div>`;
+     });
+     dHtml += '</div>';
+-    dHtml += `<div style="margin-top:14px;padding:14px;background:var(--card);border-radius:10px;border:1.5px solid var(--border)"><strong>${isEn?'Red Light Reflection:':'绾㈢伅鍙嶆€濓細'}</strong>${data.dashboardWhy || (isEn?'Not filled':'鏈～鍐?)}</div>`;
++    dHtml += `<div style="margin-top:14px;padding:14px;background:var(--card);border-radius:10px;border:1.5px solid var(--border)"><strong>${isEn?'Red Light Reflection:':'绾㈢伅鍙嶆€濓細'}</strong>${escapeHtml(data.dashboardWhy) || emptyLabel()}</div>`;
+     document.getElementById('reportDashboard').innerHTML = dHtml;
+ 
+     const gType = data.gravityType === 'gravity' ? (isEn?'Gravity Problem (Accept & Reframe)':'閲嶅姏闂锛堥渶鎺ュ彈骞堕噸鏂板畾鍚戯級') : (isEn?'True Problem (Designable)':'鐪熼棶棰橈紙鍙璁★級');
+     document.getElementById('reportGravity').innerHTML = `
+-      <div style="margin-bottom:10px"><strong>${isEn?'Original concern:':'鍘熷鍥版壈锛?}</strong>${data.gravityProblem || (isEn?'Not filled':'鏈～鍐?)}</div>
++      <div style="margin-bottom:10px"><strong>${isEn?'Original concern:':'鍘熷鍥版壈锛?}</strong>${escapeHtml(data.gravityProblem) || emptyLabel()}</div>
+       <div style="margin-bottom:10px"><strong>${isEn?'Nature:':'闂鎬ц川锛?}</strong>${gType}</div>
+-      ${data.gravityRedirect ? `<div style="background:var(--success-bg);padding:14px;border-radius:10px"><strong>${isEn?'Reframe:':'閲嶆柊瀹氬悜锛?}</strong>${data.gravityRedirect}</div>` : ''}
++      ${data.gravityRedirect ? `<div style="background:var(--success-bg);padding:14px;border-radius:10px"><strong>${isEn?'Reframe:':'閲嶆柊瀹氬悜锛?}</strong>${escapeHtml(data.gravityRedirect)}</div>` : ''}
+     `;
+ 
+     document.getElementById('reportCompass').innerHTML = `
+-      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Workview':'宸ヤ綔瑙?}</div><div style="color:var(--text2)">${data.workView || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Lifeview':'浜虹敓瑙?}</div><div style="color:var(--text2)">${data.lifeView || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-      <div style="background:var(--warn-bg);padding:14px;border-radius:10px"><strong>${isEn?'Alignment diagnosis:':'涓€鑷存€ц瘖鏂細'}</strong>${data.compassConflict || (isEn?'Not filled':'鏈～鍐?)}</div>
++      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Workview':'宸ヤ綔瑙?}</div><div style="color:var(--text2)">${escapeHtml(data.workView) || emptyLabel()}</div></div>
++      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Lifeview':'浜虹敓瑙?}</div><div style="color:var(--text2)">${escapeHtml(data.lifeView) || emptyLabel()}</div></div>
++      <div style="background:var(--warn-bg);padding:14px;border-radius:10px"><strong>${isEn?'Alignment diagnosis:':'涓€鑷存€ц瘖鏂細'}</strong>${escapeHtml(data.compassConflict) || emptyLabel()}</div>
+     `;
+ 
+     document.getElementById('reportEnergy').innerHTML = `
+-      <div style="margin-bottom:14px"><div style="font-weight:600;color:var(--success-text)">馃攱 ${isEn?'Recharge':'鍥炶锛堝厖鐢碉級'}</div><div>${data.energyGain || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-      <div><div style="font-weight:600;color:var(--danger-text)">馃攲 ${isEn?'Drain':'鑰楃數锛堟娊骞诧級'}</div><div>${data.energyDrain || (isEn?'Not filled':'鏈～鍐?)}</div></div>
++      <div style="margin-bottom:14px"><div style="font-weight:600;color:var(--success-text)">馃攱 ${isEn?'Recharge':'鍥炶锛堝厖鐢碉級'}</div><div>${escapeHtml(data.energyGain) || emptyLabel()}</div></div>
++      <div><div style="font-weight:600;color:var(--danger-text)">馃攲 ${isEn?'Drain':'鑰楃數锛堟娊骞诧級'}</div><div>${escapeHtml(data.energyDrain) || emptyLabel()}</div></div>
+       <div style="margin-top:14px;padding:14px;background:var(--bg);border-radius:10px;font-size:14px">馃挕 <strong>${isEn?'Design tip:':'璁捐寤鸿锛?}</strong>${isEn?'Increase recharge activities, reduce or outsource drains.':'鏈潵鐨勪汉鐢熺増鏈簲灏藉彲鑳藉鍔犮€屽洖琛€銆嶄簨椤圭殑姣斾緥锛屽噺灏戞垨澶栧寘銆岃€楃數銆嶄簨椤广€?}</div>
+     `;
+ 
+     const darkHtml = data.darkSkipped ? `<p style="color:var(--text3)">${isEn?'Skipped.':'宸茶烦杩囥€?}</p>` : `
+-      <div style="margin-bottom:10px"><strong>${isEn?'5 years:':'5骞村悗锛?}</strong><div style="color:var(--text2)">${data.dark5 || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-      <div style="margin-bottom:10px"><strong>${isEn?'10 years / end of life:':'10骞村悗 / 浜虹敓灏藉ご锛?}</strong><div style="color:var(--text2)">${data.dark10 || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-      <div style="background:var(--danger-bg);padding:14px;border-radius:10px"><strong>${isEn?'Fuel:':'鎺ㄥ姩鍔涳細'}</strong>${data.darkFuel || (isEn?'Not filled':'鏈～鍐?)}</div>
++      <div style="margin-bottom:10px"><strong>${isEn?'5 years:':'5骞村悗锛?}</strong><div style="color:var(--text2)">${escapeHtml(data.dark5) || emptyLabel()}</div></div>
++      <div style="margin-bottom:10px"><strong>${isEn?'10 years / end of life:':'10骞村悗 / 浜虹敓灏藉ご锛?}</strong><div style="color:var(--text2)">${escapeHtml(data.dark10) || emptyLabel()}</div></div>
++      <div style="background:var(--danger-bg);padding:14px;border-radius:10px"><strong>${isEn?'Fuel:':'鎺ㄥ姩鍔涳細'}</strong>${escapeHtml(data.darkFuel) || emptyLabel()}</div>
+     `;
+     document.getElementById('reportDark').innerHTML = darkHtml;
+ 
+@@ -909,11 +923,11 @@
+         <div style="background:${p.bg};padding:18px;border-radius:14px;margin-bottom:14px">
+           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+             <span style="background:var(--primary);color:#fff;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px;font-weight:700">${p.label}</span>
+-            <span style="font-weight:700;font-size:17px">${d?.title || (isEn?'Untitled':'鏈懡鍚?)}</span>
++            <span style="font-weight:700;font-size:17px">${escapeHtml(d?.title) || (isEn?'Untitled':'鏈懡鍚?)}</span>
+             <span style="color:var(--text3);font-size:13px">鈥?${p.name}</span>
+           </div>
+-          <div style="margin-bottom:10px"><strong>${isEn?'Timeline:':'鏃堕棿绾匡細'}</strong><div style="color:var(--text2);white-space:pre-line">${d?.timeline || (isEn?'Not filled':'鏈～鍐?)}</div></div>
+-          <div style="margin-bottom:10px"><strong>${isEn?'Questions:':'寰呮祴璇曢棶棰橈細'}</strong><div style="color:var(--text2)">${d?.questions || (isEn?'Not filled':'鏈～鍐?)}</div></div>
++          <div style="margin-bottom:10px"><strong>${isEn?'Timeline:':'鏃堕棿绾匡細'}</strong><div style="color:var(--text2);white-space:pre-line">${escapeHtml(d?.timeline) || emptyLabel()}</div></div>
++          <div style="margin-bottom:10px"><strong>${isEn?'Questions:':'寰呮祴璇曢棶棰橈細'}</strong><div style="color:var(--text2)">${escapeHtml(d?.questions) || emptyLabel()}</div></div>
+           ${evals}
+         </div>
+       `;
+@@ -1050,8 +1064,14 @@ ${data.planC?.timeline || ''}
+   }
+ 
+   // --- Init ---
+-  checkResume();
+-  if(data._currentStep && data._currentStep > 0) restoreFields();
++  if(data._completed){
++    restoreFields();
++    generateReport();
++    showStep('final');
++  } else {
++    checkResume();
++    if(data._currentStep && data._currentStep > 0 && data._currentStep <= totalSteps) restoreFields();
++  }
+ })();
+ </script>
+ 
