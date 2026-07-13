@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>人生设计实验室 v2 | Life Design Lab</title>
+<style>
+  :root{
+    --bg:#f8fafc;--card:#fff;--text:#1f2937;--text2:#4b5563;--text3:#6b7280;--border:#e5e7eb;
+    --primary:#0f172a;--primary-hover:#1e293b;--accent:#3b82f6;--danger-bg:#fef2f2;--danger-text:#991b1b;
+    --success-bg:#ecfdf5;--success-text:#065f46;--warn-bg:#fffbeb;--warn-text:#92400e;--shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04);
+    --gauge-health:#ef4444;--gauge-work:#3b82f6;--gauge-play:#f59e0b;--gauge-love:#ec4899;
+    --nav-bg:#f8fafc;
+  }
+  [data-theme="dark"]{
+    --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--text2:#cbd5e1;--text3:#94a3b8;--border:#334155;
+    --primary:#f8fafc;--primary-hover:#e2e8f0;--accent:#60a5fa;--danger-bg:#450a0a;--danger-text:#fca5a5;
+    --success-bg:#064e3b;--success-text:#6ee7b7;--warn-bg:#451a03;--warn-text:#fcd34d;--shadow:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.2);
+    --nav-bg:#1e293b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--text);line-height:1.6;transition:background .3s,color .3s;overflow-x:hidden}
+  #app{max-width:720px;margin:0 auto;padding:calc(56px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom))}
+  .fade-in{animation:fadeIn .4s ease-out both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 28px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;min-height:48px;gap:8px;touch-action:manipulation;user-select:none}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}
+  .btn-secondary{background:var(--border);color:var(--text2)}
+  .btn-secondary:hover{background:var(--text3);color:#fff}
+  .btn-ghost{background:transparent;color:var(--text3);border:1.5px solid var(--border)}
+  .btn-ghost:hover{background:var(--border)}
+  .btn-danger{background:var(--danger-bg);color:var(--danger-text)}
+  .btn-danger:hover{background:var(--danger-text);color:#fff}
+  .btn-mic{background:var(--accent);color:#fff;width:40px;height:40px;padding:0;border-radius:50%;font-size:18px}
+  .btn-mic:hover{background:#2563eb}
+  .btn-mic.recording{animation:pulse 1.2s infinite;background:#dc2626}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  .card{background:var(--card);border-radius:18px;padding:24px;margin:16px auto;max-width:720px;box-shadow:var(--shadow);transition:background .3s}
+  .gauge{display:flex;align-items:center;gap:12px;margin:10px 0}
+  .gauge-label{width:90px;flex-shrink:0;font-weight:600;font-size:14px}
+  .gauge-score{width:64px;flex-shrink:0;text-align:center;font-size:16px}
+  .gauge-bar{flex:1;height:12px;background:var(--border);border-radius:999px;overflow:hidden}
+  .gauge-fill{height:100%;border-radius:999px;transition:width .6s ease}
+  .tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--success-bg);color:var(--success-text);margin-right:6px}
+  .tag-amber{background:var(--warn-bg);color:var(--warn-text)}
+  .tag-red{background:var(--danger-bg);color:var(--danger-text)}
+  textarea,input[type="text"],input[type="number"]{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;outline:none;transition:border-color .2s;font-family:inherit;resize:vertical;background:var(--card);color:var(--text)}
+  textarea:focus,input:focus{border-color:var(--accent)}
+  .option-card{border:1.5px solid var(--border);border-radius:14px;padding:18px;margin:10px 0;cursor:pointer;transition:all .2s;background:var(--card)}
+  .option-card:hover{border-color:var(--accent);background:var(--bg)}
+  .option-card.selected{border-color:var(--accent);background:var(--bg)}
+  .progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);transition:width .3s ease;z-index:50}
+  .quote{border-left:3px solid var(--accent);padding-left:16px;margin:16px 0;color:var(--text2);font-style:italic}
+  h2{font-size:24px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  h3{font-size:17px;font-weight:600;margin:18px 0 10px;color:var(--text2)}
+  .final-section{margin-bottom:20px;padding:20px;background:var(--bg);border-radius:14px;transition:background .3s}
+  .final-section h4{margin:0 0 8px;font-size:17px;color:var(--text)}
+  .hidden{display:none!important}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+  .modal-card{background:var(--card);padding:32px;border-radius:20px;max-width:420px;width:90%;text-align:center;box-shadow:0 24px 48px rgba(0,0,0,.2)}
+  .modal-card h3{margin-top:0;font-size:20px}
+  .modal-card p{color:var(--text3);font-size:15px;margin:14px 0 24px}
+  .step-nav{display:flex;gap:8px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+  .step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--border);background:var(--card);color:var(--text3);cursor:pointer;transition:all .2s}
+  .step-dot.done{border-color:var(--accent);background:var(--accent);color:#fff}
+  .step-dot.active{border-color:var(--accent);background:var(--card);color:var(--accent)}
+  .step-dot:hover{transform:scale(1.12)}
+  .eval-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+  .eval-cell{text-align:center;padding:12px;border-radius:10px;background:var(--card);border:1.5px solid var(--border);font-size:13px}
+  .eval-cell strong{display:block;font-size:20px;margin-bottom:4px}
+  .input-wrap{position:relative}
+  .input-wrap .btn-mic{position:absolute;right:8px;top:50%;transform:translateY(-50%)}
+  .input-wrap textarea{padding-right:52px}
+  .sticky-bottom{position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;z-index:40;gap:12px;box-shadow:0 -4px 12px rgba(0,0,0,.06)}
+  .sticky-bottom .btn{flex:1;max-width:none}
+  .lang-switch{position:fixed;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:60;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);min-width:44px;min-height:44px}
+  .theme-toggle{position:fixed;top:calc(12px + env(safe-area-inset-top));right:64px;z-index:60;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);min-width:44px;min-height:44px}
+  .step-nav-sticky{position:sticky;top:calc(4px + env(safe-area-inset-top));z-index:40;background:var(--nav-bg);padding:10px;border-radius:999px;margin:0 auto 16px;max-width:fit-content;box-shadow:var(--shadow)}
+  .intro-card{text-align:center;padding:48px 24px}
+  .intro-emoji{font-size:56px;margin-bottom:16px}
+  .intro-title{font-size:30px}
+  .phase-badge{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+  .step-actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .step-actions .btn{flex:1;min-width:100px}
+  .modal-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .modal-actions .btn{flex:1;min-width:120px}
+  .final-actions{text-align:center;margin-top:28px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .plan-scores{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .report-score-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+  .canvas-wrap{margin:16px 0;text-align:center}
+  canvas{max-width:100%;border-radius:12px}
+  .timeline-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin:10px 0}
+  .timeline-card h5{margin:0 0 6px;font-size:15px}
+  .check-item{display:flex;align-items:flex-start;gap:10px;margin:10px 0;padding:12px;background:var(--bg);border-radius:10px}
+  .check-item input[type="checkbox"]{width:20px;height:20px;min-width:20px;margin-top:2px;accent-color:var(--accent)}
+  .check-item label{font-size:15px;color:var(--text2);cursor:pointer}
+  .check-item.checked label{text-decoration:line-through;color:var(--text3)}
+  @media print{
+    .btn,.progress,.step-nav,.modal-overlay,.sticky-bottom,.lang-switch,.theme-toggle{display:none!important}
+    .card{box-shadow:none;margin:0;page-break-inside:avoid}
+    body{background:#fff;color:#1f2937}
+  }
+  @media (max-width:640px){
+    #app{padding:calc(52px + env(safe-area-inset-top)) 12px calc(84px + env(safe-area-inset-bottom))}
+    .card{padding:16px;margin:8px 0;border-radius:14px}
+    .intro-card{padding:32px 16px}
+    .intro-emoji{font-size:44px;margin-bottom:12px}
+    .intro-title{font-size:24px!important}
+    .eval-grid{grid-template-columns:repeat(2,1fr)}
+    .report-score-grid{grid-template-columns:1fr}
+    h2{font-size:20px}
+    h3{font-size:16px}
+    .btn{padding:12px 16px;font-size:15px;min-height:48px}
+    .step-dot{width:36px;height:36px;font-size:12px;flex-shrink:0}
+    #stepNav.step-nav-sticky{
+      max-width:100%!important;width:100%;
+      overflow-x:auto;flex-wrap:nowrap!important;justify-content:flex-start;
+      padding:8px 12px;border-radius:16px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    }
+    #stepNav.step-nav-sticky::-webkit-scrollbar{display:none}
+    .gauge{flex-wrap:wrap;gap:8px}
+    .gauge-label{width:100%}
+    .gauge-bar{width:100%;flex:none;order:2}
+    .gauge-score{width:72px;order:3;margin-left:auto}
+    .quote{padding-left:12px;margin:12px 0;font-size:15px}
+    .option-card{padding:16px}
+    .modal-card{padding:24px 20px;width:calc(100% - 24px);max-height:calc(100vh - 48px);overflow-y:auto}
+    .modal-actions{flex-direction:column}
+    .modal-actions .btn{width:100%;max-width:none}
+    .step-actions{flex-direction:column}
+    .step-actions .btn{width:100%;max-width:none}
+    .final-actions{flex-direction:column;align-items:stretch}
+    .final-actions .btn{width:100%;max-width:none}
+    .final-section{padding:16px}
+    .canvas-wrap canvas{width:100%;max-width:100%;height:auto}
+    .input-wrap .btn-mic{width:44px;height:44px;right:6px}
+    .input-wrap textarea{padding-right:56px}
+    .lang-switch{right:10px;padding:8px 10px;font-size:12px}
+    .theme-toggle{right:56px;padding:8px 10px}
+    .sticky-bottom{padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+    .plan-scores{gap:10px}
+    .check-item label{font-size:14px}
+  }
+  @media (max-width:380px){
+    .intro-title{font-size:22px!important}
+    .theme-toggle{right:52px}
+    .lang-switch{right:8px}
+  }
+  .lang-en .zh{display:none}
+  .lang-en .en{display:inline}
+  .zh{display:inline}
+  .en{display:none}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="progress" id="progressBar" style="width:0%"></div>
+
+<button class="lang-switch" onclick="toggleLang()" id="langBtn">EN</button>
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+<!-- Resume Modal -->
+<div id="resumeModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div style="font-size:48px;margin-bottom:8px">💾</div>
+    <h3><span class="zh">检测到未完成的对话</span><span class="en">Unfinished Session Found</span></h3>
+    <p><span class="zh">你上次填写到第 <strong id="resumeStepNum">1</strong> 步，是否继续？</span><span class="en">You were at step <strong id="resumeStepNumEn">1</strong>. Resume?</span></p>
+    <div style="display:flex;gap:12px;justify-content:center" class="modal-actions">
+      <button class="btn btn-primary" onclick="resumeSession()"><span class="zh">继续上次</span><span class="en">Resume</span></button>
+      <button class="btn btn-ghost" onclick="clearAndRestart()"><span class="zh">重新开始</span><span class="en">Restart</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- Intro -->
+  <div id="step-intro" class="fade-in">
+    <div class="card intro-card">
+      <div class="intro-emoji">🧭</div>
+      <h2 class="intro-title"><span class="zh">人生设计实验室</span><span class="en">Life Design Lab</span></h2>
+      <p style="color:var(--text3);max-width:480px;margin:14px auto;font-size:15px">
+        <span class="zh">源自斯坦福大学最受欢迎的人生设计课。人生不是一道要算出标准答案的工程题，而是一件可以反复打磨、低成本试错的作品。</span>
+        <span class="en">From Stanford's most popular course. Life is not an engineering problem with one right answer — it's a work-in-progress you can prototype.</span>
+      </p>
+      <div style="margin:28px 0;text-align:left;max-width:460px;margin-left:auto;margin-right:auto;font-size:14px;color:var(--text2)">
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:20px">📍</span> <span class="zh">第一阶段：看清现状 —— 健康、工作、娱乐、爱</span><span class="en">Phase 1: Where You Are</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:20px">🧭</span> <span class="zh">第二阶段：找到指南针 —— 工作观与人生观</span><span class="en">Phase 2: Your Compass</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:20px">⚡</span> <span class="zh">第三阶段：寻路 —— 心流与能量地图</span><span class="en">Phase 3: Wayfinding</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0"><span style="font-size:20px">🗺️</span> <span class="zh">第四阶段：奥德赛计划 —— 三个五年版本</span><span class="en">Phase 4: Odyssey Plans</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--text3);margin:18px 0">
+        <span class="zh">全程约 15–20 分钟 · 所有数据仅保存在本地浏览器</span>
+        <span class="en">~15–20 min · All data stays on your device</span>
+      </p>
+      <button class="btn btn-primary" onclick="start()" style="margin-top:8px;font-size:17px;padding:16px 36px">
+        <span class="zh">开始设计我的人生</span><span class="en">Start Designing</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step Nav -->
+  <div id="stepNav" class="step-nav step-nav-sticky hidden"></div>
+
+  <!-- Step 1: Dashboard -->
+  <div id="step-1" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第一阶段</span><span class="en">Phase 1</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">你在这里</span><span class="en">Where You Are</span></span>
+      </div>
+      <h2><span class="zh">人生仪表盘</span><span class="en">Life Dashboard</span></h2>
+      <p style="color:var(--text3)"><span class="zh">请给以下四个方面打分（0 = 很差，10 = 很好）。健康不只是身体，还包括情绪与心理；娱乐是指纯粹为了快乐而做的事，跟产出无关；爱是双向流动的。</span><span class="en">Rate four areas 0–10. Health = body + mind + emotion. Play = purely for joy. Love = mutual.</span></p>
+      <div class="canvas-wrap"><canvas id="dashRadar" width="320" height="240"></canvas></div>
+      <div id="gauges"></div>
+      <div style="margin-top:16px">
+        <h3><span class="zh">哪一项亮了红灯？为什么？</span><span class="en">Which area is the red light? Why?</span></h3>
+        <div class="input-wrap">
+          <textarea id="dashboardWhy" rows="3" placeholder="比如：娱乐只有3分..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('dashboardWhy')" title="语音输入">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Gravity Problem -->
+  <div id="step-2" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第一阶段</span><span class="en">Phase 1</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">真问题识别</span><span class="en">True Problem</span></span>
+      </div>
+      <h2><span class="zh">重力问题检测</span><span class="en">Gravity Problem Check</span></h2>
+      <div class="quote">"<span class="zh">如果一个问题根本无法被解决，比如整个行业收入水平、别人对你的偏见、自然规律，那它就算不上问题，只是一种现实。唯一的出路是接受它并重新定向。</span><span class="en">If a problem cannot be solved—industry pay, others' bias, natural laws—it's not a problem, it's reality. Accept and reframe.</span>"</div>
+      <p style="color:var(--text3)"><span class="zh">你现在最想解决、最让你焦虑的问题是什么？</span><span class="en">What's the most pressing issue right now?</span></p>
+      <div class="input-wrap">
+        <textarea id="gravityProblem" rows="3" placeholder="描述你目前最卡住的困扰..."></textarea>
+        <button class="btn btn-mic" onclick="startSpeech('gravityProblem')">🎤</button>
+      </div>
+      <div style="margin-top:16px">
+        <h3><span class="zh">这是可以动手设计的真问题，还是无法改变的重力问题？</span><span class="en">Is this a designable problem or a gravity problem?</span></h3>
+        <div class="option-card" onclick="selectGravity('real')" id="g-real">
+          <div style="font-weight:600">✅ <span class="zh">真问题</span><span class="en">True Problem</span></div>
+          <div style="font-size:13px;color:var(--text3);margin-top:4px"><span class="zh">可以通过行动、资源重组或认知调整来改变</span><span class="en">Can be changed through action or reframing</span></div>
+        </div>
+        <div class="option-card" onclick="selectGravity('gravity')" id="g-gravity">
+          <div style="font-weight:600">⚠️ <span class="zh">重力问题</span><span class="en">Gravity Problem</span></div>
+          <div style="font-size:13px;color:var(--text3);margin-top:4px"><span class="zh">这是客观现实或结构性约束，无法直接"解决"，只能接受并重新定向</span><span class="en">Structural reality. Accept and redirect.</span></div>
+        </div>
+      </div>
+      <div id="gravityRedirect" class="hidden" style="margin-top:12px">
+        <h3><span class="zh">如果这是重力问题，请重新描述一个你可以真正设计的版本：</span><span class="en">Reframe it into a designable version:</span></h3>
+        <div class="input-wrap">
+          <textarea id="gravityRedirectText" rows="2" placeholder="把'行业薪资太低'重新定向为..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('gravityRedirectText')">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Work View -->
+  <div id="step-3" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第二阶段</span><span class="en">Phase 2</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">指南针</span><span class="en">Compass</span></span>
+      </div>
+      <h2><span class="zh">工作观</span><span class="en">Workview</span></h2>
+      <div class="quote">"<span class="zh">工作对你到底意味着什么？你为什么要工作？工作和金钱、和他人、和这个世界是什么关系？</span><span class="en">What does work mean to you? Why do you work? Its relation to money, people, and the world?</span>"</div>
+      <p style="color:var(--text3)"><span class="zh">不要回答你想做哪份具体工作，先回答你为什么工作。</span><span class="en">Don't name a job. Answer WHY you work.</span></p>
+      <div class="input-wrap">
+        <textarea id="workView" rows="4" placeholder="比如：工作是我与社会交换价值的媒介..."></textarea>
+        <button class="btn btn-mic" onclick="startSpeech('workView')">🎤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Life View -->
+  <div id="step-4" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第二阶段</span><span class="en">Phase 2</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">指南针</span><span class="en">Compass</span></span>
+      </div>
+      <h2><span class="zh">人生观</span><span class="en">Lifeview</span></h2>
+      <div class="quote">"<span class="zh">你觉得人生的意义或目的是什么？你和家人、和更大的世界怎么连接？什么东西能让你觉得这一生没白活？</span><span class="en">What gives life meaning? How do you connect to family and the world? What makes it worth it?</span>"</div>
+      <div class="input-wrap">
+        <textarea id="lifeView" rows="4" placeholder="比如：人生的意义在于建立深度连接..."></textarea>
+        <button class="btn btn-mic" onclick="startSpeech('lifeView')">🎤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Compass Check -->
+  <div id="step-5" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第二阶段</span><span class="en">Phase 2</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">校准</span><span class="en">Align</span></span>
+      </div>
+      <h2><span class="zh">指南针一致性检查</span><span class="en">Compass Alignment</span></h2>
+      <p style="color:var(--text3)"><span class="zh">回看你的工作观与人生观，它们之间存在冲突吗？哪里需要让步？</span><span class="en">Do your workview and lifeview conflict? Where must one give way?</span></p>
+      <div style="background:var(--bg);padding:16px;border-radius:12px;margin:14px 0;font-size:14px">
+        <div style="font-weight:600;margin-bottom:4px"><span class="zh">你的工作观：</span><span class="en">Workview:</span></div>
+        <div id="compassWorkPreview" style="color:var(--text2)"></div>
+        <div style="font-weight:600;margin:14px 0 4px"><span class="zh">你的人生观：</span><span class="en">Lifeview:</span></div>
+        <div id="compassLifePreview" style="color:var(--text2)"></div>
+      </div>
+      <div class="input-wrap">
+        <textarea id="compassConflict" rows="3" placeholder="比如：冲突在于我追求工作成就..."></textarea>
+        <button class="btn btn-mic" onclick="startSpeech('compassConflict')">🎤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Flow -->
+  <div id="step-6" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第三阶段</span><span class="en">Phase 3</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">寻路</span><span class="en">Wayfinding</span></span>
+      </div>
+      <h2><span class="zh">心流时刻</span><span class="en">Flow Moments</span></h2>
+      <div class="quote">"<span class="zh">回忆那些你完全投入、忘记时间、做完很满足的时刻。那就是心流。</span><span class="en">Recall moments you were fully absorbed, lost track of time, and felt fulfilled. That's flow.</span>"</div>
+      <p style="color:var(--text3)"><span class="zh">请描述最近一次（或最难忘的一次）心流体验：当时在做什么？和谁？在什么环境里？</span><span class="en">Describe a recent flow experience: what, with whom, where?</span></p>
+      <div class="input-wrap">
+        <textarea id="flowMoment" rows="4" placeholder="比如：上周六下午独自写代码..."></textarea>
+        <button class="btn btn-mic" onclick="startSpeech('flowMoment')">🎤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7: Energy -->
+  <div id="step-7" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第三阶段</span><span class="en">Phase 3</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">能量地图</span><span class="en">Energy Map</span></span>
+      </div>
+      <h2><span class="zh">能量审计</span><span class="en">Energy Audit</span></h2>
+      <p style="color:var(--text3)"><span class="zh">哪些事做完之后虽然累但精神是亢奋的（回血）？哪些事即使做得不错也会把你抽干？</span><span class="en">What recharges you despite being tired? What drains you even when done well?</span></p>
+      <div style="margin:14px 0">
+        <h3>🔋 <span class="zh">回血事项（充电）</span><span class="en">Recharge</span></h3>
+        <div class="input-wrap">
+          <textarea id="energyGain" rows="2" placeholder="比如：深度写作..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('energyGain')">🎤</button>
+        </div>
+      </div>
+      <div style="margin:14px 0">
+        <h3>🔌 <span class="zh">耗电事项（抽干）</span><span class="en">Drain</span></h3>
+        <div class="input-wrap">
+          <textarea id="energyDrain" rows="2" placeholder="比如：无意义的会议..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('energyDrain')">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 8: Anchor -->
+  <div id="step-8" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第四阶段</span><span class="en">Phase 4</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">摆脱困境</span><span class="en">Break Free</span></span>
+      </div>
+      <h2><span class="zh">锚问题</span><span class="en">Anchor Problem</span></h2>
+      <div class="quote">"<span class="zh">你有没有一个执念，一个死守了很久、其实早就行不通、却始终不肯放手的方案？这往往是把你钉在原地的锚。</span><span class="en">An idea you've clung to for too long that no longer works. The anchor holding you in place.</span>"</div>
+      <p style="color:var(--text3)"><span class="zh">描述这个执念，然后试着重新定义它背后你真正想要的东西。</span><span class="en">Describe the old plan, then reframe what you truly want beneath it.</span></p>
+      <div style="margin:14px 0">
+        <h3><span class="zh">执念（旧方案）</span><span class="en">Old Plan</span></h3>
+        <div class="input-wrap">
+          <textarea id="anchorOld" rows="2" placeholder="比如：我必须在大厂做到P9..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('anchorOld')">🎤</button>
+        </div>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">真正想要的东西（重新定义）</span><span class="en">What You Truly Want</span></h3>
+        <div class="input-wrap">
+          <textarea id="anchorNew" rows="2" placeholder="比如：我真正想要的是专业话语权和财务安全感..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('anchorNew')">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 9: Dark Timeline (Reverse) -->
+  <div id="step-9" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第四阶段</span><span class="en">Phase 4</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">暗时间线</span><span class="en">Dark Timeline</span></span>
+      </div>
+      <h2><span class="zh">反向推演</span><span class="en">Reverse Forecast</span></h2>
+      <div class="quote" style="border-color:var(--danger-text)">"<span class="zh">如果未来五年什么都不变，一个普通的周二会怎么过？再把画面拉到十年后、拉到这一生的尽头。维持现状的真实代价是什么？</span><span class="en">If nothing changes for 5 years, what does a typical Tuesday look like? Stretch to 10 years, to the end of life. What's the real cost of staying put?</span>"</div>
+      <p style="color:var(--text3)"><span class="zh">这是可选但极有力的步骤。请诚实描述，不需要回避不适感。</span><span class="en">Optional but powerful. Be honest; discomfort is the point.</span></p>
+      <div style="margin:14px 0">
+        <h3><span class="zh">5年后：一个普通的周二</span><span class="en">5 years: a typical Tuesday</span></h3>
+        <div class="input-wrap">
+          <textarea id="dark5" rows="3" placeholder="从早上醒来到晚上十点..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('dark5')">🎤</button>
+        </div>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">10年后 / 人生尽头：你最不想看到的画面</span><span class="en">10 years / end of life: the scene you fear most</span></h3>
+        <div class="input-wrap">
+          <textarea id="dark10" rows="3" placeholder="那时的你，身体、身边、心里..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('dark10')">🎤</button>
+        </div>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">这个画面给你的推动力（把不适转化为动力）</span><span class="en">What fuel does this give you?</span></h3>
+        <div class="input-wrap">
+          <textarea id="darkFuel" rows="2" placeholder="我不想让...变成现实，所以我现在要..."></textarea>
+          <button class="btn btn-mic" onclick="startSpeech('darkFuel')">🎤</button>
+        </div>
+      </div>
+      <div class="step-actions">
+        <button class="btn btn-secondary" onclick="goBack(8)"><span class="zh">上一步</span><span class="en">Back</span></button>
+        <button class="btn btn-ghost" onclick="skipDark()"><span class="zh">跳过此步</span><span class="en">Skip</span></button>
+        <button class="btn btn-primary" onclick="saveDark()"><span class="zh">下一步</span><span class="en">Next</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 10: Odyssey A -->
+  <div id="step-10" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第四阶段</span><span class="en">Phase 4</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">奥德赛计划 1/3</span><span class="en">Odyssey 1/3</span></span>
+      </div>
+      <h2><span class="zh">版本 A：你已经在做的路</span><span class="en">Plan A: Current Path</span></h2>
+      <p style="color:var(--text3)"><span class="zh">第一个版本是你已经在做、或心里盘算很久的那条路。如果一切按现有轨迹推进，五年后你会在哪里？</span><span class="en">The path you're already on or have long considered. Where does it lead in 5 years?</span></p>
+      <div style="margin:14px 0">
+        <h3><span class="zh">六字标题</span><span class="en">6-Word Title</span></h3>
+        <input type="text" id="planATitle" maxlength="6" placeholder="如：深耕专业线">
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">五年时间线要点</span><span class="en">5-Year Timeline</span></h3>
+        <textarea id="planATimeline" rows="3" placeholder="Year 1: ... Year 3: ... Year 5: ..."></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">值得测试的问题</span><span class="en">Questions to Test</span></h3>
+        <textarea id="planAQuestions" rows="2" placeholder="比如：这个行业五年后还需要这个岗位吗？"></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">快速评估（1-10分）</span><span class="en">Quick Score (1-10)</span></h3>
+        <div class="plan-scores">
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">物力</span><span class="en">Resources</span></label><input type="number" id="planARes" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">喜欢</span><span class="en">Enjoy</span></label><input type="number" id="planALike" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">自信</span><span class="en">Confidence</span></label><input type="number" id="planAConf" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">一致</span><span class="en">Alignment</span></label><input type="number" id="planAAlign" min="1" max="10" value="5" style="margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 11: Odyssey B -->
+  <div id="step-11" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第四阶段</span><span class="en">Phase 4</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">奥德赛计划 2/3</span><span class="en">Odyssey 2/3</span></span>
+      </div>
+      <h2><span class="zh">版本 B：如果 A 突然消失</span><span class="en">Plan B: If A Vanishes</span></h2>
+      <p style="color:var(--text3)"><span class="zh">假如第一条路突然不再可行（行业消失、公司倒闭、身体不允许），你会做什么？</span><span class="en">If Plan A becomes impossible, what's your pivot?</span></p>
+      <div style="margin:14px 0">
+        <h3><span class="zh">六字标题</span><span class="en">6-Word Title</span></h3>
+        <input type="text" id="planBTitle" maxlength="6" placeholder="如：转型咨询业">
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">五年时间线要点</span><span class="en">5-Year Timeline</span></h3>
+        <textarea id="planBTimeline" rows="3" placeholder="Year 1: ... Year 3: ... Year 5: ..."></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">值得测试的问题</span><span class="en">Questions to Test</span></h3>
+        <textarea id="planBQuestions" rows="2" placeholder="比如：我现有的技能能否迁移到新领域？"></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">快速评估（1-10分）</span><span class="en">Quick Score (1-10)</span></h3>
+        <div class="plan-scores">
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">物力</span><span class="en">Resources</span></label><input type="number" id="planBRes" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">喜欢</span><span class="en">Enjoy</span></label><input type="number" id="planBLike" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">自信</span><span class="en">Confidence</span></label><input type="number" id="planBConf" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">一致</span><span class="en">Alignment</span></label><input type="number" id="planBAlign" min="1" max="10" value="5" style="margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 12: Odyssey C -->
+  <div id="step-12" class="hidden">
+    <div class="card">
+      <div class="phase-badge">
+        <span style="background:var(--primary);color:#fff;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700"><span class="zh">第四阶段</span><span class="en">Phase 4</span></span>
+        <span style="color:var(--text3);font-size:14px"><span class="zh">奥德赛计划 3/3</span><span class="en">Odyssey 3/3</span></span>
+      </div>
+      <h2><span class="zh">版本 C：不考虑钱和别人眼光</span><span class="en">Plan C: Money & Judgment Free</span></h2>
+      <p style="color:var(--text3)"><span class="zh">假如不用考虑钱，也不用在乎别人怎么看，你真正想过的生活是什么？</span><span class="en">If money and others' opinions didn't matter, what life would you choose?</span></p>
+      <div style="margin:14px 0">
+        <h3><span class="zh">六字标题</span><span class="en">6-Word Title</span></h3>
+        <input type="text" id="planCTitle" maxlength="6" placeholder="如：山野创作人">
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">五年时间线要点</span><span class="en">5-Year Timeline</span></h3>
+        <textarea id="planCTimeline" rows="3" placeholder="Year 1: ... Year 3: ... Year 5: ..."></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">值得测试的问题</span><span class="en">Questions to Test</span></h3>
+        <textarea id="planCQuestions" rows="2" placeholder="比如：这个理想生活中有哪些元素可以现在就小规模尝试？"></textarea>
+      </div>
+      <div style="margin:14px 0">
+        <h3><span class="zh">快速评估（1-10分）</span><span class="en">Quick Score (1-10)</span></h3>
+        <div class="plan-scores">
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">物力</span><span class="en">Resources</span></label><input type="number" id="planCRes" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">喜欢</span><span class="en">Enjoy</span></label><input type="number" id="planCLike" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">自信</span><span class="en">Confidence</span></label><input type="number" id="planCConf" min="1" max="10" value="5" style="margin-top:6px"></div>
+          <div><label style="font-size:13px;color:var(--text3)"><span class="zh">一致</span><span class="en">Alignment</span></label><input type="number" id="planCAlign" min="1" max="10" value="5" style="margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final Report -->
+  <div id="step-final" class="hidden">
+    <div class="card" style="padding:32px">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:56px">📋</div>
+        <h2 style="margin-top:10px;font-size:28px"><span class="zh">你的个人人生设计蓝图</span><span class="en">Your Life Design Blueprint</span></h2>
+        <p style="color:var(--text3)"><span id="reportDate"></span></p>
+      </div>
+
+      <div class="final-section">
+        <h4>📍 <span class="zh">你在这里</span><span class="en">Where You Are</span></h4>
+        <div id="reportDashboard"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>🎯 <span class="zh">真问题</span><span class="en">True Problem</span></h4>
+        <div id="reportGravity"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>🧭 <span class="zh">你的指南针</span><span class="en">Your Compass</span></h4>
+        <div id="reportCompass"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>⚡ <span class="zh">你的能量地图</span><span class="en">Your Energy Map</span></h4>
+        <div id="reportEnergy"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>🌑 <span class="zh">暗时间线</span><span class="en">Dark Timeline</span></h4>
+        <div id="reportDark"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>🗺️ <span class="zh">三个奥德赛计划</span><span class="en">Three Odyssey Plans</span></h4>
+        <div class="canvas-wrap"><canvas id="planRadar" width="420" height="320"></canvas></div>
+        <div id="reportPlans"></div>
+      </div>
+
+      <div class="final-section">
+        <h4>🚀 <span class="zh">原型行动清单</span><span class="en">Prototype Action List</span></h4>
+        <div id="reportActions"></div>
+      </div>
+
+      <div class="final-section" style="background:var(--warn-bg)">
+        <h4>🛡️ <span class="zh">失败免疫</span><span class="en">Failure Immunity</span></h4>
+        <p style="margin:0;color:var(--warn-text)"><span class="zh">人生是一场无限游戏。这三个版本是可以先试再调的原型，谁都不是一锤定音的赌注。任何一个原型即使失败也会给你下一步留下有用的信息，所以你可以放心地先选一个开始走。</span><span class="en">Life is an infinite game. These are prototypes, not bets. Any failure leaves useful info for the next iteration.</span></p>
+      </div>
+
+      <div class="final-actions">
+        <button class="btn btn-secondary" onclick="window.print()"><span class="zh">打印 / PDF</span><span class="en">Print / PDF</span></button>
+        <button class="btn btn-primary" onclick="exportMarkdown()"><span class="zh">导出 Markdown</span><span class="en">Export MD</span></button>
+        <button class="btn btn-ghost" onclick="exportJSON()"><span class="zh">导出 JSON</span><span class="en">Export JSON</span></button>
+        <button class="btn btn-ghost" onclick="exportICS()"><span class="zh">导出日历</span><span class="en">Export Calendar</span></button>
+        <button class="btn btn-danger" onclick="clearAndRestart()"><span class="zh">清除并重启</span><span class="en">Clear & Restart</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky Bottom Nav -->
+<div id="stickyNav" class="sticky-bottom hidden">
+  <button class="btn btn-secondary" onclick="goBackSticky()"><span class="zh">← 上一步</span><span class="en">← Back</span></button>
+  <button class="btn btn-primary" onclick="nextSticky()"><span class="zh">下一步 →</span><span class="en">Next →</span></button>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'lifeDesign_v2';
+  const data = loadFromStorage() || {};
+  let currentStep = data._currentStep || 0;
+  const totalSteps = 12;
+  const stepMap = {1:'saveDashboard',2:'saveGravity',3:'saveWorkView',4:'saveLifeView',5:'saveCompass',6:'saveFlow',7:'saveEnergy',8:'saveAnchor',9:'saveDark',10:'savePlanA',11:'savePlanB',12:'savePlanC'};
+  const stepLabels = ['仪表盘','重力','工作观','人生观','校准','心流','能量','锚点','暗时间','计划A','计划B','计划C'];
+  const stepLabelsEn = ['Dashboard','Gravity','Workview','Lifeview','Align','Flow','Energy','Anchor','Dark','Plan A','Plan B','Plan C'];
+  let isEn = false;
+
+  // --- Storage ---
+  function saveToStorage(){
+    data._currentStep = currentStep;
+    data._savedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+  function loadFromStorage(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){ return null; } }
+  function clearStorage(){ localStorage.removeItem(STORAGE_KEY); }
+  function escapeHtml(str){
+    if(str == null || str === '') return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function emptyLabel(){ return isEn ? 'Not filled' : '未填写'; }
+
+  // --- Language ---
+  window.toggleLang = function(){
+    isEn = !isEn;
+    document.body.classList.toggle('lang-en', isEn);
+    document.getElementById('langBtn').textContent = isEn ? '中' : 'EN';
+    buildNav();
+    if(currentStep === 'final') generateReport();
+  };
+
+  // --- Theme ---
+  window.toggleTheme = function(){
+    const t = document.body.getAttribute('data-theme');
+    const next = t === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️' : '🌙';
+    drawDashRadar();
+    if(currentStep === 'final') drawPlanRadar();
+  };
+
+  // --- Navigation ---
+  function updateProgress(){
+    const pct = currentStep === 'final' ? 100 : Math.round((Number(currentStep) / totalSteps) * 100);
+    document.getElementById('progressBar').style.width = (isNaN(pct) ? 0 : pct) + '%';
+  }
+  function showStep(n){
+    document.querySelectorAll('#app > [id^="step-"]').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById('step-' + (n === 0 ? 'intro' : n));
+    if(!target){ console.error('showStep: unknown step', n); return; }
+    target.classList.remove('hidden');
+    target.classList.remove('fade-in'); void target.offsetWidth; target.classList.add('fade-in');
+    currentStep = n;
+    updateProgress();
+    updateNavDots();
+    const nav = document.getElementById('stepNav');
+    const sticky = document.getElementById('stickyNav');
+    if(n > 0 && n !== 'final' && n !== 9){
+      nav.classList.remove('hidden'); sticky.classList.remove('hidden');
+    } else if(n === 9){
+      nav.classList.remove('hidden'); sticky.classList.add('hidden');
+    } else {
+      nav.classList.add('hidden'); sticky.classList.add('hidden');
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+    saveToStorage();
+    if(n === 1) setTimeout(drawDashRadar, 100);
+    if(n === 'final') setTimeout(drawPlanRadar, 100);
+  }
+
+  function showResumeModal(){
+    const step = Number(data._currentStep);
+    document.getElementById('resumeStepNum').textContent = step;
+    document.getElementById('resumeStepNumEn').textContent = step;
+    document.getElementById('resumeModal').classList.remove('hidden');
+  }
+  function hideResumeModal(){
+    document.getElementById('resumeModal').classList.add('hidden');
+  }
+
+  function buildNav(){
+    const nav = document.getElementById('stepNav');
+    nav.innerHTML = '';
+    const labels = isEn ? stepLabelsEn : stepLabels;
+    labels.forEach((label,i) => {
+      const dot = document.createElement('div');
+      dot.className = 'step-dot';
+      dot.textContent = i+1;
+      dot.title = label;
+      dot.onclick = () => { if(i+1 < currentStep || data._completed) goBack(i+1); };
+      nav.appendChild(dot);
+    });
+  }
+  function updateNavDots(){
+    document.querySelectorAll('.step-dot').forEach((dot,i) => {
+      dot.classList.remove('done','active');
+      if(i+1 < currentStep) dot.classList.add('done');
+      if(i+1 === currentStep) dot.classList.add('active');
+    });
+  }
+  buildNav();
+
+  // --- Sticky Nav Logic ---
+  window.goBackSticky = function(){ if(currentStep > 1) goBack(currentStep - 1); };
+  window.nextSticky = function(){
+    const fn = stepMap[currentStep];
+    if(fn && window[fn]) window[fn]();
+  };
+
+  // --- Resume ---
+  function hasSavedProgress(){
+    if(data._completed) return true;
+    const step = Number(data._currentStep);
+    if(!step || step < 1 || step > totalSteps) return false;
+    return !!(data.scores || data.dashboardWhy || data.gravityProblem || data.workView ||
+      data.lifeView || data.compassConflict || data.flowMoment || data.energyGain ||
+      data.energyDrain || data.anchorOld || data.anchorNew || data.dark5 || data.dark10 ||
+      data.darkFuel || data.planA || data.planB || data.planC);
+  }
+  function checkResume(){
+    if(hasSavedProgress() && !data._completed){
+      showResumeModal();
+    }
+  }
+  window.start = function(){ hideResumeModal(); showStep(1); };
+  window.goBack = function(n){ showStep(n); };
+  window.resumeSession = function(){
+    hideResumeModal();
+    restoreFields();
+    const step = Number(data._currentStep);
+    showStep(step >= 1 && step <= totalSteps ? step : 1);
+  };
+  window.clearAndRestart = function(){
+    try{ clearStorage(); }catch(e){}
+    hideResumeModal();
+    location.reload();
+  };
+
+  function restoreFields(){
+    if(data.scores){
+      dims.forEach(d => { const el = document.getElementById('score-'+d.key); if(el){ el.value = data.scores[d.key] || 5; updateGauge(d.key); } });
+    }
+    const fields = [
+      'dashboardWhy','gravityProblem','gravityRedirectText','workView','lifeView',
+      'compassConflict','flowMoment','energyGain','energyDrain','anchorOld','anchorNew',
+      'dark5','dark10','darkFuel'
+    ];
+    fields.forEach(id => { const el = document.getElementById(id); if(el && data[id]) el.value = data[id]; });
+    const wp = document.getElementById('compassWorkPreview');
+    if(wp) wp.textContent = data.workView || (isEn ? '(Not filled)' : '（未填写）');
+    const lp = document.getElementById('compassLifePreview');
+    if(lp) lp.textContent = data.lifeView || (isEn ? '(Not filled)' : '（未填写）');
+    if(data.gravityType) selectGravity(data.gravityType);
+    ['A','B','C'].forEach(p => {
+      const d = data['plan'+p];
+      if(d){
+        if(d.title) document.getElementById('plan'+p+'Title').value = d.title;
+        if(d.timeline) document.getElementById('plan'+p+'Timeline').value = d.timeline;
+        if(d.questions) document.getElementById('plan'+p+'Questions').value = d.questions;
+        if(d.res) document.getElementById('plan'+p+'Res').value = d.res;
+        if(d.like) document.getElementById('plan'+p+'Like').value = d.like;
+        if(d.conf) document.getElementById('plan'+p+'Conf').value = d.conf;
+        if(d.align) document.getElementById('plan'+p+'Align').value = d.align;
+      }
+    });
+  }
+
+  // --- Gauges & Radar ---
+  const dims = [
+    {key:'health',label:'健康',labelEn:'Health',sub:'身体 + 情绪 + 心理',subEn:'Body + Mind + Emotion',color:'#ef4444'},
+    {key:'work',label:'工作',labelEn:'Work',sub:'掌控感与成就感',subEn:'Control & Achievement',color:'#3b82f6'},
+    {key:'play',label:'娱乐',labelEn:'Play',sub:'纯粹为了快乐',subEn:'Pure Joy',color:'#f59e0b'},
+    {key:'love',label:'爱',labelEn:'Love',sub:'双向流动',subEn:'Mutual Flow',color:'#ec4899'}
+  ];
+  const gaugesEl = document.getElementById('gauges');
+  dims.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'gauge';
+    row.innerHTML = `
+      <div style="width:90px;font-weight:600;font-size:14px">
+        <span class="zh">${d.label}</span><span class="en">${d.labelEn}</span>
+        <div style="font-size:11px;color:var(--text3);font-weight:400"><span class="zh">${d.sub}</span><span class="en">${d.subEn}</span></div>
+      </div>
+      <div class="gauge-bar"><div class="gauge-fill" id="fill-${d.key}" style="width:0%;background:${d.color}"></div></div>
+      <input type="number" min="0" max="10" value="5" id="score-${d.key}" style="width:64px;text-align:center;font-size:16px" oninput="updateGauge('${d.key}')">
+    `;
+    gaugesEl.appendChild(row);
+  });
+
+  window.updateGauge = function(key){
+    const val = document.getElementById('score-'+key).value;
+    document.getElementById('fill-'+key).style.width = (val * 10) + '%';
+    drawDashRadar();
+  };
+  dims.forEach(d => window.updateGauge(d.key));
+
+  function drawDashRadar(){
+    const c = document.getElementById('dashRadar');
+    if(!c) return;
+    const ctx = c.getContext('2d');
+    const w = c.width, h = c.height, cx = w/2, cy = h/2, r = Math.min(w,h)/2 - 30;
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle = isDark ? '#334155' : '#e5e7eb';
+    ctx.lineWidth = 1;
+    for(let i=1;i<=5;i++){ ctx.beginPath(); ctx.arc(cx,cy,r*i/5,0,Math.PI*2); ctx.stroke(); }
+    for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); ctx.stroke(); }
+    const scores = dims.map(d => {
+      const el = document.getElementById('score-'+d.key);
+      const val = el ? +el.value : (data.scores?.[d.key] ?? 5);
+      return Math.min(10, Math.max(0, val || 0)) / 10;
+    });
+    ctx.beginPath();
+    for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; const s = scores[i] || 0; const x = cx+Math.cos(a)*r*s, y = cy+Math.sin(a)*r*s; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.closePath();
+    ctx.fillStyle = isDark ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = isDark ? '#f1f5f9' : '#1f2937';
+    ctx.font = 'bold 12px system-ui';
+    ctx.textAlign = 'center';
+    for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; const x = cx+Math.cos(a)*(r+18), y = cy+Math.sin(a)*(r+18); ctx.fillText(isEn ? dims[i].labelEn : dims[i].label, x, y+4); }
+  }
+
+  // --- Speech ---
+  let recognition = null;
+  if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'zh-CN';
+  }
+  let activeSpeechField = null;
+  window.startSpeech = function(fieldId){
+    if(!recognition){ alert(isEn ? 'Speech not supported in this browser.' : '当前浏览器不支持语音输入'); return; }
+    activeSpeechField = fieldId;
+    const btn = document.querySelector('button[onclick*="'+fieldId+'"]');
+    if(btn) btn.classList.add('recording');
+    recognition.lang = isEn ? 'en-US' : 'zh-CN';
+    recognition.onresult = e => {
+      const el = document.getElementById(fieldId);
+      if(!el) return;
+      let txt = '';
+      for(let i=e.resultIndex;i<e.results.length;i++) txt += e.results[i][0].transcript;
+      if(e.results[e.results.length-1].isFinal) el.value += (el.value ? ' ' : '') + txt;
+    };
+    recognition.onend = () => { if(btn) btn.classList.remove('recording'); };
+    recognition.start();
+  };
+
+  // --- Save Steps ---
+  window.saveDashboard = function(){
+    data.scores = {};
+    dims.forEach(d => data.scores[d.key] = +document.getElementById('score-'+d.key).value);
+    data.dashboardWhy = document.getElementById('dashboardWhy').value;
+    saveToStorage(); showStep(2);
+  };
+  let gravityType = data.gravityType || '';
+  window.selectGravity = function(type){
+    gravityType = type;
+    document.getElementById('g-real').classList.toggle('selected', type === 'real');
+    document.getElementById('g-gravity').classList.toggle('selected', type === 'gravity');
+    document.getElementById('gravityRedirect').classList.toggle('hidden', type !== 'gravity');
+  };
+  window.saveGravity = function(){
+    data.gravityProblem = document.getElementById('gravityProblem').value;
+    data.gravityType = gravityType;
+    data.gravityRedirect = document.getElementById('gravityRedirectText').value;
+    saveToStorage(); showStep(3);
+  };
+  window.saveWorkView = function(){
+    data.workView = document.getElementById('workView').value;
+    document.getElementById('compassWorkPreview').textContent = data.workView || (isEn ? '(Not filled)' : '（未填写）');
+    saveToStorage(); showStep(4);
+  };
+  window.saveLifeView = function(){
+    data.lifeView = document.getElementById('lifeView').value;
+    document.getElementById('compassLifePreview').textContent = data.lifeView || (isEn ? '(Not filled)' : '（未填写）');
+    saveToStorage(); showStep(5);
+  };
+  window.saveCompass = function(){
+    data.compassConflict = document.getElementById('compassConflict').value;
+    saveToStorage(); showStep(6);
+  };
+  window.saveFlow = function(){
+    data.flowMoment = document.getElementById('flowMoment').value;
+    saveToStorage(); showStep(7);
+  };
+  window.saveEnergy = function(){
+    data.energyGain = document.getElementById('energyGain').value;
+    data.energyDrain = document.getElementById('energyDrain').value;
+    saveToStorage(); showStep(8);
+  };
+  window.saveAnchor = function(){
+    data.anchorOld = document.getElementById('anchorOld').value;
+    data.anchorNew = document.getElementById('anchorNew').value;
+    saveToStorage(); showStep(9);
+  };
+  window.skipDark = function(){
+    data.darkSkipped = true;
+    saveToStorage(); showStep(10);
+  };
+  window.saveDark = function(){
+    data.dark5 = document.getElementById('dark5').value;
+    data.dark10 = document.getElementById('dark10').value;
+    data.darkFuel = document.getElementById('darkFuel').value;
+    data.darkSkipped = false;
+    saveToStorage(); showStep(10);
+  };
+  window.savePlanA = function(){
+    data.planA = {
+      title: document.getElementById('planATitle').value,
+      timeline: document.getElementById('planATimeline').value,
+      questions: document.getElementById('planAQuestions').value,
+      res: +document.getElementById('planARes').value,
+      like: +document.getElementById('planALike').value,
+      conf: +document.getElementById('planAConf').value,
+      align: +document.getElementById('planAAlign').value
+    };
+    saveToStorage(); showStep(11);
+  };
+  window.savePlanB = function(){
+    data.planB = {
+      title: document.getElementById('planBTitle').value,
+      timeline: document.getElementById('planBTimeline').value,
+      questions: document.getElementById('planBQuestions').value,
+      res: +document.getElementById('planBRes').value,
+      like: +document.getElementById('planBLike').value,
+      conf: +document.getElementById('planBConf').value,
+      align: +document.getElementById('planBAlign').value
+    };
+    saveToStorage(); showStep(12);
+  };
+  window.savePlanC = function(){
+    data.planC = {
+      title: document.getElementById('planCTitle').value,
+      timeline: document.getElementById('planCTimeline').value,
+      questions: document.getElementById('planCQuestions').value,
+      res: +document.getElementById('planCRes').value,
+      like: +document.getElementById('planCLike').value,
+      conf: +document.getElementById('planCConf').value,
+      align: +document.getElementById('planCAlign').value
+    };
+    data._completed = true;
+    saveToStorage();
+    generateReport();
+    showStep('final');
+  };
+
+  // --- Report ---
+  function generateReport(){
+    document.getElementById('reportDate').textContent = new Date().toLocaleString(isEn ? 'en-US' : 'zh-CN');
+
+    let dHtml = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px">';
+    dims.forEach(d => {
+      const s = data.scores?.[d.key] ?? 5;
+      let tag = s >= 7 ? '<span class="tag">'+(isEn?'Good':'良好')+'</span>' : s >= 4 ? '<span class="tag tag-amber">'+(isEn?'Warn':'预警')+'</span>' : '<span class="tag tag-red">'+(isEn?'Red':'红灯')+'</span>';
+      dHtml += `<div style="background:var(--card);padding:14px;border-radius:12px;border:1.5px solid var(--border)">
+        <div style="font-weight:600">${isEn?d.labelEn:d.label} ${tag}</div>
+        <div style="font-size:28px;font-weight:700;color:${d.color};margin:6px 0">${s}<span style="font-size:14px;color:var(--text3)">/10</span></div>
+        <div class="gauge-bar" style="height:8px"><div class="gauge-fill" style="width:${s*10}%;background:${d.color}"></div></div>
+      </div>`;
+    });
+    dHtml += '</div>';
+    dHtml += `<div style="margin-top:14px;padding:14px;background:var(--card);border-radius:10px;border:1.5px solid var(--border)"><strong>${isEn?'Red Light Reflection:':'红灯反思：'}</strong>${escapeHtml(data.dashboardWhy) || emptyLabel()}</div>`;
+    document.getElementById('reportDashboard').innerHTML = dHtml;
+
+    const gType = data.gravityType === 'gravity' ? (isEn?'Gravity Problem (Accept & Reframe)':'重力问题（需接受并重新定向）') : (isEn?'True Problem (Designable)':'真问题（可设计）');
+    document.getElementById('reportGravity').innerHTML = `
+      <div style="margin-bottom:10px"><strong>${isEn?'Original concern:':'原始困扰：'}</strong>${escapeHtml(data.gravityProblem) || emptyLabel()}</div>
+      <div style="margin-bottom:10px"><strong>${isEn?'Nature:':'问题性质：'}</strong>${gType}</div>
+      ${data.gravityRedirect ? `<div style="background:var(--success-bg);padding:14px;border-radius:10px"><strong>${isEn?'Reframe:':'重新定向：'}</strong>${escapeHtml(data.gravityRedirect)}</div>` : ''}
+    `;
+
+    document.getElementById('reportCompass').innerHTML = `
+      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Workview':'工作观'}</div><div style="color:var(--text2)">${escapeHtml(data.workView) || emptyLabel()}</div></div>
+      <div style="margin-bottom:14px"><div style="font-weight:600">${isEn?'Lifeview':'人生观'}</div><div style="color:var(--text2)">${escapeHtml(data.lifeView) || emptyLabel()}</div></div>
+      <div style="background:var(--warn-bg);padding:14px;border-radius:10px"><strong>${isEn?'Alignment diagnosis:':'一致性诊断：'}</strong>${escapeHtml(data.compassConflict) || emptyLabel()}</div>
+    `;
+
+    document.getElementById('reportEnergy').innerHTML = `
+      <div style="margin-bottom:14px"><div style="font-weight:600;color:var(--success-text)">🔋 ${isEn?'Recharge':'回血（充电）'}</div><div>${escapeHtml(data.energyGain) || emptyLabel()}</div></div>
+      <div><div style="font-weight:600;color:var(--danger-text)">🔌 ${isEn?'Drain':'耗电（抽干）'}</div><div>${escapeHtml(data.energyDrain) || emptyLabel()}</div></div>
+      <div style="margin-top:14px;padding:14px;background:var(--bg);border-radius:10px;font-size:14px">💡 <strong>${isEn?'Design tip:':'设计建议：'}</strong>${isEn?'Increase recharge activities, reduce or outsource drains.':'未来的人生版本应尽可能增加「回血」事项的比例，减少或外包「耗电」事项。'}</div>
+    `;
+
+    const darkHtml = data.darkSkipped ? `<p style="color:var(--text3)">${isEn?'Skipped.':'已跳过。'}</p>` : `
+      <div style="margin-bottom:10px"><strong>${isEn?'5 years:':'5年后：'}</strong><div style="color:var(--text2)">${escapeHtml(data.dark5) || emptyLabel()}</div></div>
+      <div style="margin-bottom:10px"><strong>${isEn?'10 years / end of life:':'10年后 / 人生尽头：'}</strong><div style="color:var(--text2)">${escapeHtml(data.dark10) || emptyLabel()}</div></div>
+      <div style="background:var(--danger-bg);padding:14px;border-radius:10px"><strong>${isEn?'Fuel:':'推动力：'}</strong>${escapeHtml(data.darkFuel) || emptyLabel()}</div>
+    `;
+    document.getElementById('reportDark').innerHTML = darkHtml;
+
+    const plans = [
+      {key:'planA',label:'A',name:isEn?'Current Path':'你已经在做的路',bg:'#eff6ff'},
+      {key:'planB',label:'B',name:isEn?'If A Vanishes':'如果A突然消失',bg:'#f5f3ff'},
+      {key:'planC',label:'C',name:isEn?'Money & Judgment Free':'不考虑钱和眼光',bg:'#fdf4ff'}
+    ];
+    let pHtml = '';
+    plans.forEach(p => {
+      const d = data[p.key];
+      const evals = d ? `
+        <div class="eval-grid">
+          <div class="eval-cell"><strong>${d.res}</strong>${isEn?'Res':'物力'}</div>
+          <div class="eval-cell"><strong>${d.like}</strong>${isEn?'Like':'喜欢'}</div>
+          <div class="eval-cell"><strong>${d.conf}</strong>${isEn?'Conf':'自信'}</div>
+          <div class="eval-cell"><strong>${d.align}</strong>${isEn?'Align':'一致'}</div>
+        </div>
+      ` : '';
+      pHtml += `
+        <div style="background:${p.bg};padding:18px;border-radius:14px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="background:var(--primary);color:#fff;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px;font-weight:700">${p.label}</span>
+            <span style="font-weight:700;font-size:17px">${escapeHtml(d?.title) || (isEn?'Untitled':'未命名')}</span>
+            <span style="color:var(--text3);font-size:13px">— ${p.name}</span>
+          </div>
+          <div style="margin-bottom:10px"><strong>${isEn?'Timeline:':'时间线：'}</strong><div style="color:var(--text2);white-space:pre-line">${escapeHtml(d?.timeline) || emptyLabel()}</div></div>
+          <div style="margin-bottom:10px"><strong>${isEn?'Questions:':'待测试问题：'}</strong><div style="color:var(--text2)">${escapeHtml(d?.questions) || emptyLabel()}</div></div>
+          ${evals}
+        </div>
+      `;
+    });
+    document.getElementById('reportPlans').innerHTML = pHtml;
+    setTimeout(drawPlanRadar, 100);
+
+    document.getElementById('reportActions').innerHTML = `
+      <div class="timeline-card">
+        <h5>📅 ${isEn?'This Week':'本周'}</h5>
+        <div class="check-item"><input type="checkbox" id="a1" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a1">${isEn?'Schedule a 2-hour "recharge" block on your calendar.':'在日历上为「回血事项」预约一个不可被侵占的 2 小时时段。'}</label></div>
+        <div class="check-item"><input type="checkbox" id="a2" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a2">${isEn?'Set 3 random phone reminders: "Am I moving toward the life I want?"':'在手机上设 3 个随机提醒：「此刻我是在走向我厌恶的生活，还是我想要的生活？」'}</label></div>
+      </div>
+      <div class="timeline-card">
+        <h5>🎙️ ${isEn?'This Month':'本月'}</h5>
+        <div class="check-item"><input type="checkbox" id="a3" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a3">${isEn?'Do one "Life Design Interview" with someone living your Plan C.':'做一次「人生设计采访」——找一位正在过你「版本C」生活的人，问他的日常。'}</label></div>
+        <div class="check-item"><input type="checkbox" id="a4" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a4">${isEn?'Run a 1–3 day prototype of the most attractive element from your 3 plans.':'用 1–3 天小规模体验三个版本中最吸引你的那个元素。'}</label></div>
+      </div>
+      <div class="timeline-card">
+        <h5>🔬 ${isEn?'This Quarter':'本季度'}</h5>
+        <div class="check-item"><input type="checkbox" id="a5" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a5">${isEn?'Pick one plan and define one core hypothesis to test.':'选定一个计划，定义一个要验证的核心假设。'}</label></div>
+        <div class="check-item"><input type="checkbox" id="a6" onchange="this.parentElement.classList.toggle('checked',this.checked)"><label for="a6">${isEn?'Build a small prototype (project, side hustle, or experiment) and gather feedback.':'做出一个小原型（项目、副业或实验），收集反馈。'}</label></div>
+      </div>
+    `;
+  }
+
+  function drawPlanRadar(){
+    const c = document.getElementById('planRadar');
+    if(!c) return;
+    const ctx = c.getContext('2d');
+    const w = c.width, h = c.height, cx = w/2, cy = h/2, r = Math.min(w,h)/2 - 40;
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle = isDark ? '#334155' : '#e5e7eb';
+    ctx.lineWidth = 1;
+    for(let i=1;i<=5;i++){ ctx.beginPath(); ctx.arc(cx,cy,r*i/5,0,Math.PI*2); ctx.stroke(); }
+    const axes = [isEn?'Res':'物力', isEn?'Like':'喜欢', isEn?'Conf':'自信', isEn?'Align':'一致'];
+    for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); ctx.stroke(); }
+    const colors = ['#3b82f6','#8b5cf6','#ec4899'];
+    ['planA','planB','planC'].forEach((pk,idx) => {
+      const d = data[pk]; if(!d) return;
+      const scores = [d.res/10, d.like/10, d.conf/10, d.align/10];
+      ctx.beginPath();
+      for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; const s = scores[i] || 0; const x = cx+Math.cos(a)*r*s, y = cy+Math.sin(a)*r*s; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.closePath();
+      ctx.fillStyle = colors[idx] + (isDark?'30':'20'); ctx.fill();
+      ctx.strokeStyle = colors[idx]; ctx.lineWidth = 2; ctx.stroke();
+    });
+    ctx.fillStyle = isDark ? '#f1f5f9' : '#1f2937';
+    ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center';
+    for(let i=0;i<4;i++){ const a = Math.PI*2*i/4 - Math.PI/2; const x = cx+Math.cos(a)*(r+22), y = cy+Math.sin(a)*(r+22); ctx.fillText(axes[i], x, y+4); }
+    ctx.textAlign = 'left';
+    ['A','B','C'].forEach((l,i) => { ctx.fillStyle = colors[i]; ctx.fillRect(10, h-40+i*14, 10, 10); ctx.fillStyle = isDark?'#f1f5f9':'#1f2937'; ctx.fillText('Plan '+l, 26, h-30+i*14); });
+  }
+
+  // --- Exports ---
+  window.exportMarkdown = function(){
+    const md = generateMarkdown();
+    const blob = new Blob([md],{type:'text/markdown'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (isEn?'LifeDesign_Blueprint_':'人生设计蓝图_') + new Date().toLocaleDateString('zh-CN').replace(/\//g,'-') + '.md';
+    a.click();
+  };
+  window.exportJSON = function(){
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (isEn?'LifeDesign_Data_':'人生设计数据_') + new Date().toLocaleDateString('zh-CN').replace(/\//g,'-') + '.json';
+    a.click();
+  };
+  window.exportICS = function(){
+    const now = new Date();
+    const events = [
+      {title:isEn?'Life Design Interview':'人生设计采访',days:7},
+      {title:isEn?'Prototype Experience':'原型体验',days:14},
+      {title:isEn?'Review Quarter Hypothesis':'季度假设复盘',days:90}
+    ];
+    let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//LifeDesign//EN\n';
+    events.forEach((e,i) => {
+      const d = new Date(); d.setDate(d.getDate()+e.days);
+      const ds = d.toISOString().replace(/[-:]/g,'').slice(0,8);
+      ics += `BEGIN:VEVENT\nUID:ld-${i}@lifedesign\nDTSTART;VALUE=DATE:${ds}\nDTEND;VALUE=DATE:${ds}\nSUMMARY:${e.title}\nDESCRIPTION:${isEn?'From Life Design Blueprint':'来自人生设计蓝图'}\nEND:VEVENT\n`;
+    });
+    ics += 'END:VCALENDAR';
+    const blob = new Blob([ics],{type:'text/calendar'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (isEn?'LifeDesign_Calendar_':'人生设计日历_') + now.toLocaleDateString('zh-CN').replace(/\//g,'-') + '.ics';
+    a.click();
+  };
+  function generateMarkdown(){
+    return `# ${isEn?'Personal Life Design Blueprint':'个人人生设计蓝图'}
+> ${isEn?'Generated:':'生成时间：'}${new Date().toLocaleString(isEn?'en-US':'zh-CN')}
+
+## 📍 ${isEn?'Where You Are':'你在这里'}
+${dims.map(d => `- **${isEn?d.labelEn:d.label}**: ${data.scores?.[d.key] ?? 5}/10`).join('\n')}
+- **${isEn?'Red Light Reflection:':'红灯反思'}**: ${data.dashboardWhy || (isEn?'Not filled':'未填写')}
+
+## 🎯 ${isEn?'True Problem':'真问题'}
+- **${isEn?'Original concern:':'原始困扰'}**: ${data.gravityProblem || (isEn?'Not filled':'未填写')}
+- **${isEn?'Nature:':'问题性质'}**: ${data.gravityType === 'gravity' ? (isEn?'Gravity Problem':'重力问题') : (isEn?'True Problem':'真问题')}
+${data.gravityRedirect ? '- **'+ (isEn?'Reframe:':'重新定向') + '**: ' + data.gravityRedirect : ''}
+
+## 🧭 ${isEn?'Your Compass':'你的指南针'}
+- **${isEn?'Workview':'工作观'}**: ${data.workView || (isEn?'Not filled':'未填写')}
+- **${isEn?'Lifeview':'人生观'}**: ${data.lifeView || (isEn?'Not filled':'未填写')}
+- **${isEn?'Alignment diagnosis:':'一致性诊断'}**: ${data.compassConflict || (isEn?'Not filled':'未填写')}
+
+## ⚡ ${isEn?'Your Energy Map':'你的能量地图'}
+- **${isEn?'Recharge:':'回血'}**: ${data.energyGain || (isEn?'Not filled':'未填写')}
+- **${isEn?'Drain:':'耗电'}**: ${data.energyDrain || (isEn?'Not filled':'未填写')}
+
+## 🌑 ${isEn?'Dark Timeline':'暗时间线'}
+- **${isEn?'5 years:':'5年后'}**: ${data.dark5 || (isEn?'Not filled':'未填写')}
+- **${isEn?'10 years / end:':'10年后 / 人生尽头'}**: ${data.dark10 || (isEn?'Not filled':'未填写')}
+- **${isEn?'Fuel:':'推动力'}**: ${data.darkFuel || (isEn?'Not filled':'未填写')}
+
+## 🗺️ ${isEn?'Odyssey Plans':'奥德赛计划'}
+### A: ${data.planA?.title || (isEn?'Untitled':'未命名')}
+${data.planA?.timeline || ''}
+### B: ${data.planB?.title || (isEn?'Untitled':'未命名')}
+${data.planB?.timeline || ''}
+### C: ${data.planC?.title || (isEn?'Untitled':'未命名')}
+${data.planC?.timeline || ''}
+
+## 🚀 ${isEn?'Prototype Actions':'原型行动清单'}
+1. ${isEn?'Schedule a 2-hour recharge block on calendar':'在日历预约2小时回血时段'}
+2. ${isEn?'Set 3 random phone reminders':'设置3个随机手机提醒'}
+3. ${isEn?'Do one Life Design Interview this month':'本月做一次人生设计采访'}
+4. ${isEn?'Run a 1-3 day prototype experience':'进行1-3天原型体验'}
+5. ${isEn?'Define and test one core hypothesis this quarter':'本季度定义并测试一个核心假设'}
+`;
+  }
+
+  // --- Init ---
+  try{
+    if(data._completed){
+      restoreFields();
+      generateReport();
+      showStep('final');
+    } else {
+      checkResume();
+      if(hasSavedProgress()) restoreFields();
+    }
+  }catch(err){
+    console.error('Life Design Lab init error:', err);
+    try{ clearStorage(); }catch(e){}
+    hideResumeModal();
+    showStep(0);
+  }
+})();
+</script>
+
+</body>
+</html>
